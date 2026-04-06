@@ -1,5 +1,5 @@
 
-<img src="pytorch-logo-dark.png" width="10%">[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/) 
+<img src="model.png" width="100%">
 
 # TSCO: Unsupervised Teacher-Student Collaborative Optimization for Cross-Domain Insulator Defect Detection
 
