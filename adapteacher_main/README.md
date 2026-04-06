@@ -1,186 +1,116 @@
-# Cross-Domain Adaptive Teacher for Object Detection
 
 <img src="pytorch-logo-dark.png" width="10%">[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/) 
 
-[![License: CC BY-NC 4.0](https://licensebuttons.net/l/by-nc/4.0/80x15.png)](https://creativecommons.org/licenses/by-nc/4.0/)
+# TSCO: Unsupervised Teacher-Student Collaborative Optimization for Cross-Domain Insulator Defect Detection
 
-This is the PyTorch implementation of our paper: <br>
-**Cross-Domain Adaptive Teacher for Object Detection**<br>
- [Yu-Jhe Li](https://yujheli.github.io/), [Xiaoliang Dai](https://sites.google.com/view/xiaoliangdai), [Chih-Yao Ma](https://chihyaoma.github.io/), [Yen-Cheng Liu](https://ycliu93.github.io/), [Kan Chen](https://kanchen.info/), [Bichen Wu](https://scholar.google.com/citations?user=K3QJPdMAAAAJ&hl=en), [Zijian He](https://research.fb.com/people/he-zijian/), [Kris Kitani](http://www.cs.cmu.edu/~kkitani/), [Peter Vajda](https://sites.google.com/site/vajdap)<br>
-IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2022 <br>
+This repository contains the official implementation of our paper:
 
-[[Paper](https://openaccess.thecvf.com/content/CVPR2022/papers/Li_Cross-Domain_Adaptive_Teacher_for_Object_Detection_CVPR_2022_paper.pdf)] [[Project](https://yujheli.github.io/projects/adaptiveteacher.html)]
+**Unsupervised Cross-Domain Teacher-Student Collaborative Optimization for Transmission Line Insulator Defect Detection**
 
-<p align="center">
-<img src="model.png" width="85%">
-</p>
+---
+
+## Overview
+
+Insulator defect detection is a critical task in intelligent inspection of power transmission lines. However, the scarcity of labeled real-world data and the significant domain gap between synthetic and real images often limit the performance of deep learning based detectors.
+
+To address these challenges, we propose a **Teacher-Student Collaborative Optimization (TSCO)** framework for unsupervised domain adaptation in insulator defect detection. The proposed framework performs collaborative optimization from three aspects: robust representation learning, pseudo-label refinement, and instance-level domain alignment.
+
+---
+
+## Key Contributions
+
+- **Cross-View Invariance Enhancement (CVIE)**  
+  Enhances feature robustness by enforcing semantic and spatial consistency across different augmented views.
+
+- **Low Confidence Driven Self-Refinement (LCSR)**  
+  Improves pseudo-label quality by exploiting low-confidence instances instead of simply discarding them.
+
+- **Curriculum-guided Hard Instance Alignment (CHIA)**  
+  Performs progressive instance-level domain alignment using curriculum-guided filtering and hard-sample weighting.
+
+- **Collaborative Teacher-Student Optimization**  
+  Enables mutual enhancement between the teacher and student models, leading to improved domain generalization.
+
+---
+
+## Framework
+
+TSCO is built upon a teacher-student architecture for unsupervised domain adaptation:
+
+- The **student model** learns from:
+  - labeled source-domain images
+  - pseudo-labeled target-domain images
+
+- The **teacher model**:
+  - is updated by exponential moving average (EMA)
+  - is further refined using low-confidence driven self-optimization
+
+- Domain adaptation is achieved through:
+  - cross-view consistency learning
+  - instance-level adversarial alignment
+  - curriculum-guided hard-sample selection
+
+---
+
+## Experimental Results
+
+### Self-Built Dataset
+
+| Method | Damage AP50 | Drop AP50 |
+|--------|-------------|-----------|
+| Baseline | 68.2 | 83.8 |
+| TSCO (Ours) | **75.3** | **88.9** |
+
+### Public Datasets
+
+| Method | Damage AP50 | Drop AP50 |
+|--------|-------------|-----------|
+| AT | 58.6 | 85.4 |
+| DA2OD | 62.5 | 89.4 |
+| TSCO (Ours) | **64.1** | **90.5** |
+
+---
+
+## Additional Analysis
+
+To provide a comprehensive evaluation, we further analyze the proposed method from multiple perspectives:
+
+- feature distribution alignment (MMD)
+- IoU distribution statistics
+- pseudo-label quality visualization
+- qualitative detection results
+
+These analyses demonstrate that TSCO improves:
+
+- domain alignment
+- pseudo-label reliability
+- detection robustness
+- cross-domain generalization capability
+
+---
 
 # Installation
 
 ## Prerequisites
 
-- Python ≥ 3.6
-- PyTorch ≥ 1.5 and torchvision that matches the PyTorch installation.
-- Detectron2 == 0.3 (The version I used to run my code)
+- Python >= 3.6
+- PyTorch >= 1.5 and torchvision compatible with the installed PyTorch version
+- Detectron2 == 0.3
 
-## Our tested environment
+## Our Tested Environment
 
-- 8 V100 (16 batch size)
-- 4 2080 Ti (4 batch size)
+- Ubuntu 20.04
+- Python 3.8.3
+- PyTorch 1.7.0
+- Torchvision 0.12.0
+- CUDA 11.0
+- NVIDIA GeForce RTX 3090
+- Batch size: 4 (2 source images + 2 target images)
 
-## Install python env
+## Install Python Environment
 
-To install required dependencies on the virtual environment of the python (e.g., virtualenv for python3), please run the following command at the root of this code:
-```
-$ python3 -m venv /path/to/new/virtual/environment/.
-$ source /path/to/new/virtual/environment/bin/activate
-```
-For example:
-```
-$ mkdir python_env
-$ python3 -m venv python_env/
-$ source python_env/bin/activate
-```
- 
+We recommend creating a virtual environment before installing the dependencies.
 
-## Build Detectron2 from Source
-
-Follow the [INSTALL.md](https://github.com/facebookresearch/detectron2/blob/master/INSTALL.md) to install Detectron2.
-
-## Dataset download
-
-1. Download the datasets
-
-
-2. Organize the dataset as the Cityscapes and PASCAL VOC format following:
-
-```shell
-adaptive_teacher/
-└── datasets/
-    └── cityscapes/
-        ├── gtFine/
-            ├── train/
-            └── test/
-            └── val/
-        ├── leftImg8bit/
-            ├── train/
-            └── test/
-            └── val/
-   └── cityscapes_foggy/
-        ├── gtFine/
-            ├── train/
-            └── test/
-            └── val/
-        ├── leftImg8bit/
-            ├── train/
-            └── test/
-            └── val/
-   └── VOC2012/
-        ├── Annotations/
-        ├── ImageSets/
-        └── JPEGImages/
-   └── clipark/
-        ├── Annotations/
-        ├── ImageSets/
-        └── JPEGImages/
-   └── watercolor/
-        ├── Annotations/
-        ├── ImageSets/
-        └── JPEGImages/
-    
-```
-python deletsame.py --root /workspace/ssk1/adapteacher_main/datasets/target/JPEGImages --dry-run
-python deletsame.py --root /workspace/ssk1/adapteacher_main/datasets/target/JPEGImages --dry-run \
-  --phash-th 4 --dhash-th 2 --ahash-th 2 \
-  --min-hist-corr 0.995 --max-ar-diff 0.02 --max-scale-diff 0.10 \
-  --orb-nfeatures 1500 --ratio-test 0.65 --ransac-reproj 2.0 \
-  --min-inliers 80 --min-inlier-ratio 0.8 --min-overlap-on-smaller 0.98
-
-# Training
-
-- Train the Adaptive Teacher under PASCAL VOC (source) and Clipart1k (target)
-
-```shell
-CUDA_VISIBLE_DEVICES=1  python train_net.py \
-      --num-gpus 1 \
-      --config configs/faster_rcnn_R101_cross_insulator.yaml\
-      OUTPUT_DIR output/damage_faster
-```
-```shell
-CUDA_VISIBLE_DEVICES=1  python train_net.py \
-      --num-gpus 1 \
-      --config configs/faster_rcnn_R101_cross_insulator.yaml\
-      OUTPUT_DIR output/faster_rcnn_R101_cross_base0.8_3
-```
-- Train the Adaptive Teacher under cityscapes (source) and foggy cityscapes (target)
-
-```shell
-```
-
-## Resume the training
-# 接着这个跑
-```shell
-CUDA_VISIBLE_DEVICES=2  python train_net.py \
-      --resume \
-      --num-gpus 1 \
-      --config configs/faster_rcnn_R101_cross_insulator.yaml MODEL.WEIGHTS /workspace/ssk1/adapteacher_main/output/faster_rcnn_R101_cross_ins_damage_pre/model_0006899.pth
-```
-/workspace/ssk1/adapteacher_main/output/faster_rcnn_R101_cross_ins_damage_pre/model_0006899.pth
-/workspace/ssk1/adapteacher_main/output/drop_AT_CBA_advins/model_0015999.pth
-## Evaluation
-
-```shell
-CUDA_VISIBLE_DEVICES=1  python train_net.py \
-      --eval-only \
-      --num-gpus 1 \
-      --config configs/faster_rcnn_R101_cross_insulator.yaml \
-      MODEL.WEIGHTS /workspace/ssk1/adapteacher_main/output/drop_AT_CBA_advins/model_0015999.pth
-```
-
-## Results and Model Weights
-
-If you are urgent with the pre-trained weights, please download our interal prod_weights here at the [Link](https://drive.google.com/drive/folders/17p8oYjhmoA77_hyVZq4WLJezsUiSZhdi?usp=sharing). Please note that the key name in the pre-trained model is slightly different and you will need to align manually. Otherwise, please wait and we will try to release the local weights in the future.
-### Real to Artistic Adaptation:
-|  Backbone  | Source set (labeled) |  Target set (unlabeled)  |       Batch size        | AP@.5   |    Model Weights      | Comment |
-| :-----: | :---------------: | :----------------: | :---------------------: | :-----: | :----------: |:-----: | 
-| R101 |    VOC12    |      Clipark1k      | 16 labeled + 16 unlabeled | 40.1  | [link](https://drive.google.com/file/d/1mzqSlkftJDTj1IWZC0huuMIzWDtfSaL0/view?usp=sharing)| Ours w/o discriminator (dis=0)|
-| R101 |    VOC12    |      Clipark1k      | 4 labeled + 4 unlabeled | 47.2  | [link](https://drive.google.com/file/d/1F72bfPP-5uu4H2rS_OscSLVhvjHeylR-/view?usp=sharing)| lr=0.01, dis_w=0.1, default |
-| R101 |    VOC12    |      Clipark1k      | 16 labeled + 16 unlabeled | 49.6  | [link](https://drive.google.com/file/d/1qbueKiNPLIP4gFJrUQi_1kpCAQmUivFG/view?usp=sharing)| Ours in the paper, unsup_w=0.5|
-| R101+FPN |    VOC12    | Clipark1k | 16 labeled + 16 unlabeled | 51.2  |link (coming soon) | For future work|
-
-### Weather Adaptation:
-|  Backbone  | Source set (labeled) |  Target set (unlabeled)  |       Batch size        | AP@.5   |    Model Weights      | Comment|
-| :-----: | :---------------: | :----------------: | :---------------------: | :-----: | :--------------------------------------------------: |:-----: | 
-| VGG16|    Cityscapes    |      Foggy Cityscapes (ALL)      | 16 labeled + 16 unlabeled | 48.7  | link (coming soon)|Ours w/o discriminator|
-| VGG16|    Cityscapes    |      Foggy Cityscapes (ALL)      | 16 labeled + 16 unlabeled | 50.9  | link (coming soon)|Ours in the paper|
-| VGG16|    Cityscapes    |      Foggy Cityscapes (0.02)      | 16 labeled + 16 unlabeled | in progress  | link (coming soon)|Ours in the paper|
-| VGG16+FPN |    Cityscapes    |  Foggy Cityscapes (ALL) | 16 labeled + 16 unlabeled | 57.4  |link (coming soon) |For future work|
-
-## Citation
-
-If you use Adaptive Teacher in your research or wish to refer to the results published in the paper, please use the following BibTeX entry.
-
-```BibTeX
-@inproceedings{li2022cross,
-    title={Cross-Domain Adaptive Teacher for Object Detection},
-    author={Li, Yu-Jhe and Dai, Xiaoliang and Ma, Chih-Yao and Liu, Yen-Cheng and Chen, Kan and Wu, Bichen and He, Zijian and Kitani, Kris and Vajda, Peter},
-    booktitle={IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-    year={2022}
-} 
-```
-
-Also, if you use Detectron2 in your research, please use the following BibTeX entry.
-
-```BibTeX
-@misc{wu2019detectron2,
-  author =       {Yuxin Wu and Alexander Kirillov and Francisco Massa and
-                  Wan-Yen Lo and Ross Girshick},
-  title =        {Detectron2},
-  howpublished = {\url{https://github.com/facebookresearch/detectron2}},
-  year =         {2019}
-}
-```
-
-## License
-
-This project is licensed under CC-BY-NC 4.0 License, as found in the LICENSE file.
+```bash
+python3 -m venv /path/to/new/virtual/environment/
+source /path/to/new/virtual/environment/bin/activate
